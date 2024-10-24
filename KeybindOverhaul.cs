@@ -292,7 +292,7 @@ namespace KeybindOverhaul {
                         isPressed = FsmEvent.GetFsmEvent("WARP"),
                         continueListening = false
                     }, 2);
-                    ((SendEventByName)dreamGate.Actions[3]).delay.Value = 0.1f;
+                    ((SendEventByName)dreamGate.Actions[3]).delay.Value = 0.01f;
                     FsmState setCharge = self.GetState("Set Charge");
                     setCharge.RemoveAction(3);
                     setCharge.InsertAction(new ListenForCustomBind() {
