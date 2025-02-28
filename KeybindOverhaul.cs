@@ -17,7 +17,7 @@ using sMenuButton = Satchel.BetterMenus.MenuButton;
 namespace KeybindOverhaul {
     public class KeybindOverhaul: Mod, ICustomMenuMod, IGlobalSettings<GlobalSettingsClass> {
         new public string GetName() => "KeybindOverhaul";
-        public override string GetVersion() => "1.0.0.0";
+        public override string GetVersion() => "1.0.0.1";
         public override int LoadPriority() => int.MaxValue;
 
         private Menu MenuRef;
@@ -143,7 +143,7 @@ namespace KeybindOverhaul {
         private void editFsm(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self) {
             if(self.gameObject.name == "Knight") {
                 if(self.FsmName == "Nail Arts") {
-                    FsmState moveChoice = self.GetState("Move Choice");
+                    FsmState moveChoice = self.GetValidState("Move Choice");
                     moveChoice.RemoveAction(2);
                     moveChoice.RemoveAction(1);
                     FsmEvent cancelEvent = new("CANCEL ART");
@@ -159,7 +159,7 @@ namespace KeybindOverhaul {
                         isNotPressed = cancelEvent,
                         continueListening = false
                     });
-                    FsmState inactive = self.GetState("Inactive");
+                    FsmState inactive = self.GetValidState("Inactive");
                     inactive.RemoveAction(0);
                     inactive.AddAction(new ListenForCustomBind() {
                         keybinds = gs.nailArtBind,
@@ -167,21 +167,21 @@ namespace KeybindOverhaul {
                         continueListening = true
                     });
 
-                    ListenForCustomBind extendCyclone = new ListenForCustomBind() {
+                    ListenForCustomBind extendCyclone = new() {
                         keybinds = gs.nailBind,
                         wasPressed = FsmEvent.GetFsmEvent("BUTTON DOWN"),
                         continueListening = true
                     };
-                    FsmState cycloneStart = self.GetState("Cyclone Start");
+                    FsmState cycloneStart = self.GetValidState("Cyclone Start");
                     cycloneStart.RemoveAction(4);
                     cycloneStart.AddAction(extendCyclone);
-                    FsmState cycloneSpin = self.GetState("Cyclone Spin");
+                    FsmState cycloneSpin = self.GetValidState("Cyclone Spin");
                     cycloneSpin.RemoveAction(5);
                     cycloneSpin.AddAction(extendCyclone);
 
                 }
                 else if(self.FsmName == "Spell Control") {
-                    FsmState inactive = self.GetState("Inactive");
+                    FsmState inactive = self.GetValidState("Inactive");
                     FsmBool myActiveBool = ((ListenForCast)inactive.Actions[2]).activeBool;
                     inactive.RemoveAction(2);
                     inactive.InsertAction(new ListenForCustomBind() {
@@ -192,7 +192,7 @@ namespace KeybindOverhaul {
                         continueListening = true,
                     }, 2);
 
-                    FsmState buttonDown = self.GetState("Button Down");
+                    FsmState buttonDown = self.GetValidState("Button Down");
                     FsmBool pressedUp = ((ListenForUp)buttonDown.Actions[1]).isPressedBool;
                     FsmBool pressedDown = ((ListenForDown)buttonDown.Actions[2]).isPressedBool;
                     buttonDown.RemoveAction(0);
@@ -216,7 +216,7 @@ namespace KeybindOverhaul {
                         continueListening = true
                     }, 2);
 
-                    FsmState qc = self.GetState("QC");
+                    FsmState qc = self.GetValidState("QC");
                     FsmEvent cancelQuick = new("CANCEL QUICK");
                     qc.AddTransition("CANCEL QUICK", "Spell End");
                     qc.RemoveAction(3);
@@ -234,7 +234,7 @@ namespace KeybindOverhaul {
                         failedEvent = cancelQuick
                     });
 
-                    FsmState backIn = self.GetState("Back In?");
+                    FsmState backIn = self.GetValidState("Back In?");
                     FsmBool backActiveBool = ((ListenForCast)backIn.Actions[0]).activeBool;
                     backIn.RemoveAction(0);
                     backIn.InsertAction(new ListenForCustomBind() {
@@ -245,41 +245,41 @@ namespace KeybindOverhaul {
                         continueListening = false
                     }, 0);
 
-                    ListenForCustomBind unfocusRelease = new ListenForCustomBind() {
+                    ListenForCustomBind unfocusRelease = new() {
                         keybinds = gs.focusBind,
                         wasReleased = FsmEvent.GetFsmEvent("BUTTON UP"),
                         continueListening = true
                     };
-                    ListenForCustomBind unfocusReleasePress = new ListenForCustomBind() {
+                    ListenForCustomBind unfocusReleasePress = new() {
                         keybinds = gs.focusBind,
                         wasReleased = FsmEvent.GetFsmEvent("BUTTON UP"),
                         isNotPressed = FsmEvent.GetFsmEvent("BUTTON UP"),
                         continueListening = true
                     };
-                    FsmState focusStart = self.GetState("Focus Start");
+                    FsmState focusStart = self.GetValidState("Focus Start");
                     focusStart.RemoveAction(16);
                     focusStart.InsertAction(unfocusRelease, 16);
-                    FsmState focusStartD = self.GetState("Focus Start D");
+                    FsmState focusStartD = self.GetValidState("Focus Start D");
                     focusStartD.RemoveAction(10);
                     focusStartD.InsertAction(unfocusRelease, 10);
-                    FsmState focusD = self.GetState("Focus D");
+                    FsmState focusD = self.GetValidState("Focus D");
                     focusD.RemoveAction(6);
                     focusD.AddAction(unfocusReleasePress);
-                    FsmState focus = self.GetState("Focus");
+                    FsmState focus = self.GetValidState("Focus");
                     focus.RemoveAction(12);
                     focus.InsertAction(unfocusReleasePress, 12);
-                    FsmState focusS = self.GetState("Focus S");
+                    FsmState focusS = self.GetValidState("Focus S");
                     focusS.RemoveAction(11);
                     focusS.InsertAction(unfocusReleasePress, 11);
-                    FsmState focusLeft = self.GetState("Focus Left");
+                    FsmState focusLeft = self.GetValidState("Focus Left");
                     focusLeft.RemoveAction(11);
                     focusLeft.InsertAction(unfocusReleasePress, 11);
-                    FsmState focusRight = self.GetState("Focus Right");
+                    FsmState focusRight = self.GetValidState("Focus Right");
                     focusRight.RemoveAction(11);
                     focusRight.InsertAction(unfocusReleasePress, 11);
                 }
                 else if(self.FsmName == "Dream Nail") {
-                    FsmState dreamGate = self.GetState("Dream Gate?");
+                    FsmState dreamGate = self.GetValidState("Dream Gate?");
                     dreamGate.RemoveAction(1);
                     dreamGate.InsertAction(new ListenForCustomBind() {
                         keybinds = gs.dgateSetBind,
@@ -293,14 +293,14 @@ namespace KeybindOverhaul {
                         continueListening = false
                     }, 2);
                     ((SendEventByName)dreamGate.Actions[3]).delay.Value = 0.01f;
-                    FsmState setCharge = self.GetState("Set Charge");
+                    FsmState setCharge = self.GetValidState("Set Charge");
                     setCharge.RemoveAction(3);
                     setCharge.InsertAction(new ListenForCustomBind() {
                         keybinds = gs.dgateSetBind,
                         isNotPressed = FsmEvent.GetFsmEvent("CANCEL"),
                         continueListening = false
                     }, 3);
-                    FsmState warpCharge = self.GetState("Warp Charge");
+                    FsmState warpCharge = self.GetValidState("Warp Charge");
                     warpCharge.RemoveAction(4);
                     warpCharge.InsertAction(new ListenForCustomBind() {
                         keybinds = gs.dgateTravelBind,
